@@ -10,6 +10,11 @@ import srt
 
 def load_audio(file: str, sr: int = 16000) -> np.ndarray:
     try:
+        # Use ffmpeg to load audio file:
+        # - Input the file with threads=0 for automatic thread count
+        # - Output to stdout (-) as 16-bit signed little endian PCM audio
+        # - Convert to mono (ac=1) at specified sample rate (ar=sr)
+        # - Capture both stdout and stderr, disable stdin
         out, _ = (
             ffmpeg.input(file, threads=0)
             .output("-", format="s16le", acodec="pcm_s16le", ac=1, ar=sr)
@@ -40,13 +45,19 @@ def change_ext(filename, new_ext):
 
 
 def add_cut(filename):
-    # Add cut mark to the filename
-    base, ext = os.path.splitext(filename)
+    # This function adds a "_cut" suffix to a filename while preserving its extension
+    # For example:
+    #   "video.mp4" -> "video_cut.mp4"
+    #   "video_cut.mp4" -> "video__cut.mp4" 
+    base, ext = os.path.splitext(filename)  # Split filename into base and extension
     if base.endswith("_cut"):
-        base = base[:-4] + "_" + base[-4:]
+        # If filename already ends with "_cut", insert another underscore before "cut"
+        # This prevents multiple "_cut" suffixes from accumulating
+        base = base[:-4] + "_" + base[-4:]  # e.g. "video_cut" -> "video__cut"
     else:
+        # Otherwise just append "_cut" to the base filename
         base += "_cut"
-    return base + ext
+    return base + ext  # Recombine base and extension
 
 
 # a very simple markdown parser
