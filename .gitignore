@@ -128,3 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 log/
+
+# Files created by macOS
+.DS_Store
